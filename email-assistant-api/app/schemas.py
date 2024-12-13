@@ -28,6 +28,7 @@ class UserCreateInternal(SQLModel):
 
 # ----------- email-------------
 class EmailRequest(SQLModel):
+    user_id: int
     user_input: str
     reply_to: Optional[str] = None
     context: Optional[str] = None

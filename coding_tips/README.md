@@ -4,6 +4,53 @@
 - 写法
 ```python 
 from abc import ABC,abstractmethod
+
+class BaseEngine(ABC):
+    r"""
+    Base class for inference engine of chat models.
+
+    Must implements async methods: chat(), stream_chat().
+    """
+
+    model: Union["PreTrainedModel", "AsyncLLMEngine"]
+    tokenizer: "PreTrainedTokenizer"
+    template: "Template"
+    generating_args: Dict[str, Any]
+
+    @abstractmethod
+    def __init__(
+        self,
+        model_args: "ModelArguments",
+        data_args: "DataArguments",
+    ) -> None:
+        r"""
+        Initializes an inference engine.
+        """
+        ...
+
+    @abstractmethod
+    async def chat(
+        self,
+        messages: Sequence[Dict[str, str]],
+        system: Optional[str] = None,
+        **input_kwargs,
+    ) -> List["Response"]:
+        r"""
+        Gets a list of responses of the chat model.
+        """
+        ...
+
+    @abstractmethod
+    async def stream_chat(
+        self,
+        messages: Sequence[Dict[str, str]],
+        system: Optional[str] = None,
+        **input_kwargs,
+    ) -> AsyncGenerator[str, None]:
+        r"""
+        Gets the response token-by-token of the chat model.
+        """
+        ...
 ```
 - 使用场景：在有多个不同场景下运用相同的api，但是具体实现方式是不同的情况下。
 
@@ -14,6 +61,7 @@ from abc import ABC,abstractmethod
 ```python
 has_placeholder = False
 for slot in filter(lambda s: isinstance(s, str), slots):
+    #这里是去找{xxx}
     if re.search(r"\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}", slot):
         has_placeholder = True
 ```
@@ -26,9 +74,24 @@ dic = defaultdict(int)
 for c in s:
     dic[c]+=1
 ```
-
+### Typing
+1. **Callable**
+- 定义某个函数的入参和出参
+```python
+from typing import Callable
+func = Callable[...,None] #这里不指定入参类型，输出为 None
+func = Callable[[str,int],None] #指定入参的第一参数为str,第二参数为int
+```
+- callble也可以用来定义简单的lambda类型
+```python
+#这里在lambda里面的n,text无法用typing去指定类型，但是可以用callable去指定
+multiply:Callable[[int,str],str] = lambda n,text:n*text
+print(multiply(10,'1'))
+```
 ### asyncio和thread
 1. 协程和多线程可以同时启用
+
+- [单核处理器为什么需要线程](https://www.bilibili.com/list/watchlater?oid=113567089035565&bvid=BV1eCz6YVEAb&spm_id_from=333.1245.top_right_bar_window_view_later.content.click)
 ```python
 import asyncio
 def _start_background_loop(loop: "asyncio.AbstractEventLoop") -> None:

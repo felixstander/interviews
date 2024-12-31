@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, AsyncGenerator, Dict, List, Optional, Sequence, Set, Union,override
+from typing import (Any, AsyncGenerator, Dict, List, Optional, Sequence, Set,
+                    Union, override)
 
 
 class BaseEngine(ABC):
@@ -10,6 +11,7 @@ class BaseEngine(ABC):
     Must implements async methods: chat(), stream_chat() and get_scores().
     这个函数说明了async相关的类都需要chat,stream_chat 和get_scores这三个函数.
     """
+    
 
     model: Union["PreTrainedModel", "AsyncLLMEngine"]
     tokenizer: "PreTrainedTokenizer"

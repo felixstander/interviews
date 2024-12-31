@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-fastapi = "^0.115.6"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
 fastcrud = "^0.15.1"
 sqlmodel = "^0.0.22"
 openai = "^1.57.3"

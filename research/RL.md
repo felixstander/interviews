@@ -1,7 +1,7 @@
 ### A Taxonomy of RL Algorithms
 ![Taxonomy](../assets/RL_Taxonomy.png)
 
-### Reinforementt Learning
+### Reinforement Learning
 - State
 - Action
 - Reward

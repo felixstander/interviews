@@ -4,7 +4,7 @@
 
 from fastcrud import FastCRUD
 
-from .models import EmailLog, User
+from models import EmailLog, User
 
 crud_user = FastCRUD(User)
 crud_email_log = FastCRUD(EmailLog)

@@ -166,3 +166,22 @@ async def chat(messages:Sequence[Dict[str,str]],system:Optional[str]):
         )
 ```
 
+
+### Test相关
+
+1. 命名格式
+- 建立tests文件夹
+- 每个test文件必须以test_xxx.py命名，不然unittest识别不了
+- 每个class得以TestXxx命名
+- 每个method得以test_xxx命名
+
+2. 启动形式
+```python
+#在最外层文件夹进行shell命令
+python -m unittest
+```
+
+
+3. mock and patch 
+
+- patch可以用于模拟API调用, ***定义***: patch装饰器或上下文管理器是特别常用的，用于模拟和替换外部模块或者函数行为，在测试哪些依赖外部服务(如API)的代码时非常实用。

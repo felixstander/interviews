@@ -1,0 +1,96 @@
+import asyncio
+import json
+import unittest
+from unittest.mock import Mock, patch
+
+import httpx
+
+_CLIENT_HEADER = {"Content-Type": "application/json", "Accept": "application/json"}
+
+
+class Client:
+    """GPTCache client to send requests to GPTCache server.
+
+    :param uri: the uri leads to the server, defaults to "http://localhost:8000".
+    :type uri: str
+
+    Example:
+        .. code-block:: python
+
+            from gptcache import client
+
+            client = Client(uri="http://localhost:8000")
+            client.put("Hi", "Hi back")
+            ans = client.get("Hi")
+    """
+
+    def __init__(self, uri: str = "http://localhost:8000"):
+        self._uri = uri
+
+    async def _put(self, question: str, answer: str):
+        async with httpx.AsyncClient() as client:
+            data = {
+                "prompt": question,
+                "answer": answer,
+            }
+
+            response = await client.post(
+                f"{self._uri}/put", headers=_CLIENT_HEADER, data=json.dumps(data)
+            )
+
+        return response.status_code
+
+    async def _get(self, question: str):
+        async with httpx.AsyncClient() as client:
+            data = {
+                "prompt": question,
+            }
+
+            response = await client.post(
+                f"{self._uri}/get", headers=_CLIENT_HEADER, data=json.dumps(data)
+            )
+
+        return response.json().get("answer")
+
+    def put(self, question: str, answer: str):
+        """
+        :param question: the question to be put.
+        :type question: str
+        :param answer: the answer to the question to be put.
+        :type answer: str
+        :return: status code.
+        """
+        return asyncio.run(self._put(question, answer))
+
+    def get(self, question: str):
+        """
+        :param question: the question to get an answer.
+        :type question: str
+        :return: answer to the question.
+        """
+        return asyncio.run(self._get(question))
+
+class TestClient(unittest.TestCase):
+
+
+    def setUp(self) -> None:
+        return print("Start")
+
+    def tearDown(self) -> None:
+        return print("End")
+
+    def test_client(self):
+        client = Client()
+        with patch("httpx.AsyncClient.post") as mock_response:
+            mock_response.return_value = Mock(status_code=200)
+            status_code = client.put("Hi", "Hi back")
+            assert status_code == 200
+
+        with patch("httpx.AsyncClient.post") as mock_response:
+            m = Mock()
+            attrs = {"json.return_value": {"answer": "Hi back",}}
+            m.configure_mock(**attrs)
+            mock_response.return_value = m
+            ans = client.get("Hi")
+            assert ans == "Hi back"
+

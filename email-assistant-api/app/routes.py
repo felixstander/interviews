@@ -1,14 +1,15 @@
-from os import openpty
 from pathlib import Path
 
+from crud import crud_email_log
+from database import get_session
 from fastapi import APIRouter, Depends, HTTPException
+from helper import (Token, authenticate_user, create_access_token,
+                    get_current_user, get_password_hash)
 from openai import AsyncOpenAI
+from schemas import (EmailLogCreated, EmailLogRead, EmailRequest,
+                     EmailResponse, UserCreate, UserRead)
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from starlette.config import Config
-
-from .crud import crud_email_log
-from .database import get_session
-from .schemas import EmailLogCreated, EmailRequest, EmailResponse
 
 current_file_dir = Path(__file__).resolve()
 env_path = current_file_dir / ".env"
@@ -74,7 +75,28 @@ async def generate_email(request:EmailRequest,db:AsyncSession=Depends(get_sessio
         raise HTTPException(status_code=500,detail=str(e))
 
 
+# ---------- emial log -----------
+log_router = APIRouter()
 
+@log_router.get("/")
+async def read_logs(db:AsyncSession = Depends(get_session)):
+    logs = await crud_email_log.get_multi(db)
+    return logs
+
+
+@log_router.get("/{log_id}",response_model=EmailLogRead)
+async def read_log(log_id:int,db:AsyncSession = Depends(get_session)):
+    log = await crud_email_log.get(db,id=log_id)
+
+    if not log:
+        raise HTTPException(status_code=404,detail='Log not found')
+    return log 
+
+# ----------- user -------------
+user_router =APIRouter()
+
+@user_router.post('/register',response_model=UserRead)
+async def register_user(user:UserCreate,db:AsyncSession=Depends(get_session)):
 
 
 

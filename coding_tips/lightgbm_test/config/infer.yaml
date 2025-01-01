@@ -1,0 +1,13 @@
+#dataset
+data_dir: data
+dataset: high_diamond_ranked_10min
+label_name: blueWins
+drop_col: "gameId"
+
+
+#model
+model_dir: saves
+model_name: high_diamond
+
+#predict
+use_model: True

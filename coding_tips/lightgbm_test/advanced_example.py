@@ -103,7 +103,7 @@ print(f"The ROC AUC of pickled model's prediction is: {auc_pickled_model}")
 # init_model accepts:
 # 1. model file name
 # 2. Booster()
-gbm = lgb.train(params, lgb_train, num_boost_round=10, init_model="model.txt", valid_sets=lgb_eval)
+gbm = lgb.train(params, lgb_train, num_boost_round=10, init_model="model.txt", valid_sets=lgb_eval,)
 
 print("Finished 10 - 20 rounds with model file...")
 
@@ -231,3 +231,19 @@ df = pd.DataFrame({
 df['AgeGroup_ProductCategory'] = df['AgeGroup'] + '_' + df['ProductCategory']
 
 print(df)
+# Make predictions
+y_pred = bst.predict(X_test)
+
+# Convert probabilities to binary predictions
+y_pred_binary = (y_pred &gt; 0.5).astype(int)
+
+# Evaluate model
+accuracy = accuracy_score(y_test, y_pred_binary)
+precision = precision_score(y_test, y_pred_binary)
+recall = recall_score(y_test, y_pred_binary)
+f1score = f1_score(y_test, y_pred_binary)
+# Print metrics
+print(f&quot;Accuracy: {accuracy:.4f}&quot;)
+print(f&quot;Precision: {precision:.4f}&quot;)
+print(f&quot;Recall: {recall:.4f}&quot;)
+print(f&quot;F1-Score: {f1score:.4f}&quot;)

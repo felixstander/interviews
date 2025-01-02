@@ -185,3 +185,43 @@ python -m unittest
 3. mock and patch 
 
 - patch可以用于模拟API调用, ***定义***: patch装饰器或上下文管理器是特别常用的，用于模拟和替换外部模块或者函数行为，在测试哪些依赖外部服务(如API)的代码时非常实用。
+=======
+### 限制模型的json输出
+[如何限制模型json输出](https://mp.weixin.qq.com/s/MNj_EQ62UZC9SlOTtfYy4g)
+- Slang中限制模型输出的正则式
+```python
+#定义 "限制模型输出的正则式"
+city_regex = (    
+r"""\{\n"""    
++ r"""  "name": "[\w\d\s]{1,16}",\n"""    
++ r"""  "country": "[\w\d\s]{1,16}",\n"""    
++ r"""  "latitude": [-+]?[0-9]*\.?[0-9]{0,2},\n"""    
++ r"""  "population": [-+]?[0-9]{1,9},\n"""    
++ r"""  "top 3 landmarks": \["[\w\d\s]{1,16}", "[\w\d\s]{1,16}", "[\w\d\s]{1,16}"\]\n"""    
++ r"""\}""")
+```
+
+
+- json repair库
+
+```python
+from json_repair import loads # pip install json_repair
+import json
+#经过实践严重，json_repair可以解决输出的json中缺少"},],"的问题。
+if __name__ == '__main__':        
+    bad_string= '''
+    [            
+            {                
+            "foo": "Foo bar baz",                
+            "tag": "foo-bar-baz"            
+            },            
+            {                
+            "中文": "foo bar foobar foo bar baz.",                
+            "标签": "foo-bar-foobar"            
+            }        
+            ]
+    '''        
+    parsed_json = loads(bad_string)    
+    json_str = json.dumps(parsed_json,ensure_ascii=False)    
+    print(json_str)
+```

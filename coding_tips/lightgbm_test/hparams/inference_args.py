@@ -18,6 +18,8 @@ class GeneratingArguments(BaseModel):
     @validator("drop_col")
     def change_drop_col_type(cls,drop_col:Optional[str]=None)->List:
         if drop_col is not None:
+            if "," not in drop_col:
+                raise ValueError("请确保drop的字段用英文逗号分隔开。")
             return drop_col.split(",")
         return []
             

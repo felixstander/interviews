@@ -1,0 +1,9 @@
+#dataset
+data_dir: data
+dataset: high_diamond_ranked_10min
+label_name: blueWins
+drop_col: "gameId"
+
+
+#training
+test_size: 0.3

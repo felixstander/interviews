@@ -5,15 +5,16 @@ import lightgbm as lgb
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+from .hparams.data_args import DataArguments
 from .hparams.training_args import TraningArguments
 
 
 class Trainer:
 
-    def __init__(self,train_args:TraningArguments) -> None:
+    def __init__(self,train_args:TraningArguments,data_args:DataArguments) -> None:
         
         self.train_args = train_args
-
+        self.data_args = data_args
 
 
     def train(self):
@@ -37,7 +38,11 @@ class Trainer:
             valid_sets=lgb_train,  # eval training data
         )
 
-    def _prepare_data(self,train_args):
+    def __call__(self) -> None:
+        #实例化时就把数字准备好
+        self._prepare_data(self.data_args)
+        
+    def _prepare_data(self,data_args:DataArguments):
 
         binary_example_dir = Path(__file__).absolute().parents[1] / "binary_classification"
         df_train = pd.read_csv(str(binary_example_dir / "binary.train"), header=None, sep="\t")
@@ -45,10 +50,12 @@ class Trainer:
         y_train = df_train[0]
         X_train = df_train.drop(0, axis=1)
 
-        if not train_args.eval_dataset:
-            #TODO:无验证集就需split
-
-            X_train,X_test,y_train,y_test = train_test_split(X_train,y_train,test_size=self.train_args.test_size,random_state=self.train_args.random_state)
+        if not data_args.eval_dataset:
+            #无验证集就需split
+            X_train,X_test,y_train,y_test = train_test_split(X_train,
+                                                             y_train,
+                                                             test_size=data_args.test_size,
+                                                             random_state=data_args.random_state)
 
         else:
             df_test = pd.read_csv(str(binary_example_dir / "binary.test"), header=None, sep="\t")

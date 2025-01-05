@@ -1,10 +1,11 @@
 
-from typing import Any, List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, validator
+from pydantic import Field, validator
+from pydantic.dataclasses import dataclass
 
 
-class TraningArguments(BaseModel):
+@dataclass
+class TraningArguments:
     boosting_type:str = Field(default='gbdt')
     objective:str = Field(default='binary')
     metric:str = Field(default='binary_logloss')
@@ -16,8 +17,5 @@ class TraningArguments(BaseModel):
     bagging_freq:int = Field(default=5)
     verbose:int = Field(default=0)
     num_boost_round:int =Field(default=10)
-    #dataset
-    test_size :float = Field(default=0.2)
-    random_state:int = Field(default=2025)
 
 

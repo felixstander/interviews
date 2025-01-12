@@ -16,6 +16,8 @@ class Trainer:
         self.train_args = train_args
         self.data_args = data_args
 
+        #实例化时就把数字准备好
+        self._prepare_data(self.data_args)
 
     def train(self):
 
@@ -33,19 +35,17 @@ class Trainer:
 
         gbm = lgb.train(
             params,
-            lgb_train,
+            self.lgb_train,
             num_boost_round=self.train_args.num_boost_round,
-            valid_sets=lgb_train,  # eval training data
+            valid_sets=[self.lgb_eval],  # eval training data
         )
 
-    def __call__(self) -> None:
-        #实例化时就把数字准备好
-        self._prepare_data(self.data_args)
         
     def _prepare_data(self,data_args:DataArguments):
 
-        binary_example_dir = Path(__file__).absolute().parents[1] / "binary_classification"
-        df_train = pd.read_csv(str(binary_example_dir / "binary.train"), header=None, sep="\t")
+        data_dir = Path(__file__).absolute().parents[1] / data_args.data_dir
+        train_path = data_dir/data_args.train_dataset/"data.csv"
+        df_train = pd.read_csv(str(train_path))
 
         y_train = df_train[0]
         X_train = df_train.drop(0, axis=1)
@@ -58,7 +58,8 @@ class Trainer:
                                                              random_state=data_args.random_state)
 
         else:
-            df_test = pd.read_csv(str(binary_example_dir / "binary.test"), header=None, sep="\t")
+            eval_path = data_dir/data_args.eval_dataset/"data.csv"
+            df_test = pd.read_csv(str(eval_path))
 
             y_test = df_test[0]
             X_test = df_test.drop(0, axis=1)
@@ -71,5 +72,9 @@ class Trainer:
             X_train, y_train, feature_name=feature_name, categorical_feature=[21], free_raw_data=False
         )
         lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train, free_raw_data=False)
+
+        self.lgb_train = lgb_train
+
+        self.lgb_eval = lgb_eval
 
 

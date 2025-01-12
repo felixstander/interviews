@@ -59,7 +59,7 @@ def swarmplot(df:pd.DataFrame,
     可以看出数值的变化和y值有没有关系
     """
     df_sample = df.sample(sample_num)
-    df.dropna(thresh=)
+    df.dropna(thresh=15)
     feature = df_sample[feature_list]
     #进行标准化，标准化后的特征值均值为0，标准差为1，这样可以使得不同特征之间的数字范围相同
     feature_std = (feature-feature.mean()) / feature.std()
@@ -78,6 +78,9 @@ def swarmplot(df:pd.DataFrame,
         save_dir = Path(__file__).absolute().parent.parent / f"assets/{save_name}.png"
         plt.savefig(save_dir)
     plt.show()
+
+def hist_show(df:pd.DataFrame,feature_list:List[str],save_name:Optional[str]=None):
+    df[feature_list].hist(figsize=(12,10),bins=20)
 
 def filter_rows_min_nonull(df:pd.DataFrame,thresh:int=5):
     """移除所有列中少于阈值个非缺失值的行"""

@@ -1,13 +1,15 @@
 # coding: utf-8
+import warnings
 from pathlib import Path
 
 import lightgbm as lgb
 import numpy as np
+import optuna
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
-import optuna
+warnings.filterwarnings('ignore')
 
 print("Loading data...")
 # load or create your dataset
@@ -17,7 +19,6 @@ df = pd.read_csv(example_dir / "data/high_diamond/data.csv")
 
 y = df['blueWins']
 X = df.drop(['gameId',"blueWins"],axis=1)
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=2025)
 
 
 def objective(trial):
@@ -29,7 +30,7 @@ def objective(trial):
         "objective": "binary",
         "metric": "auc",
         "verbose": -1,
-        "n_estimators":trial.suggest_categorical("n_estimators",[10000]),
+        "n_estimators":trial.suggest_int("n_estimators",100,1000),
         "learning_rate":trial.suggest_float("learning_rate",0.01,0.3),
         "lambda_l1":trial.suggest_float("lambda_l1",1e-8,10.0,log=True),
         "lambda_l2":trial.suggest_float("lambda_l2",1e-8,10.0,log=True),
@@ -45,31 +46,30 @@ def objective(trial):
 
     pruning_callback = optuna.integration.LightGBMPruningCallback(trial,"auc")
 
-    cv_scores =np,np.empty(5)
+    cv_scores =np.empty(5)
 
-    lgb_eval = lgb.Dataset(X_test, y_test, free_raw_data=False)
 
     cv = StratifiedKFold(n_splits=5,shuffle=True,random_state=2025)
 
-    for idx,(train_idx,test_idx) in enumerate(cv.split(X_train,y_train)):
-        X_train_fold,X_test_fold = X_train.iloc[train_idx],X_train.iloc[test_idx]
-        y_train_fold,y_test_fold = y_train[train_idx],y_train[test_idx]
+    for idx,(train_idx,test_idx) in enumerate(cv.split(X,y)):
+        X_train,X_test = X.iloc[train_idx],X.iloc[test_idx]
+        y_train,y_test = y[train_idx],y[test_idx]
 
-        lgb_train_fold = lgb.Dataset(X_train_fold,label=y_train_fold)
-        lgb_test_fold = lgb.Dataset(X_test_fold,label=y_test_fold)
+        lgb_train = lgb.Dataset(X_train,label=y_train)
+        lgb_test = lgb.Dataset(X_test,label=y_test)
 
 
-        print("Starting training...")
+        print(f"Starting training fold {idx+1}...")
         # feature_name and categorical_feature
         gbm = lgb.train(
             params,
-            lgb_train_fold,
-            valid_sets=[lgb_test_fold], 
+            lgb_train,
+            valid_sets=[lgb_test], 
             callbacks=[pruning_callback]
         )
 
-        y_prds = gbm.predict(X_test_fold)
-        cv_scores[idx] = roc_auc_score(y_test_fold,y_prds)
+        y_prds = gbm.predict(X_test)
+        cv_scores[idx] = roc_auc_score(y_test,y_prds)
 
     return np.mean(cv_scores)
 

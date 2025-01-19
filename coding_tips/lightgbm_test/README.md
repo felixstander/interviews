@@ -62,3 +62,7 @@ https://cloud.tencent.com/developer/article/2435845
 4. 统计各个特征之间的相关性热力图，考虑剔除那些相关性较强的冗余特征。
 5. 考虑feature crossing,看看特征之间是否可以进行两两组合。
 6. 
+
+- 使用IQR过滤异常值
+1. 根据IQR规则，异常值通常定义低于Q1 - 1.5*IQR,或高于Q3+1.5*IQR
+

@@ -66,3 +66,10 @@ https://cloud.tencent.com/developer/article/2435845
 - 使用IQR过滤异常值
 1. 根据IQR规则，异常值通常定义低于Q1 - 1.5*IQR,或高于Q3+1.5*IQR
 
+
+- 业界广泛流传这样一句话：数据和特征决定了机器学习的上限，而模型和算法只是逼近这个上限而已。
+
+1. 却是值填补的底线是，补缺后变量数据的分布不可以发生显着变化。
+![NA_FILL](./assets/NA_fill.png)
+
+https://medium.com/@andrywmarques/how-lgbm-deals-with-missing-values-bd361636357f

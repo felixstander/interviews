@@ -73,3 +73,7 @@ https://cloud.tencent.com/developer/article/2435845
 ![NA_FILL](./assets/NA_fill.png)
 
 https://medium.com/@andrywmarques/how-lgbm-deals-with-missing-values-bd361636357f
+
+- Categorical features can be discretized using one hot encoding and continuous variables can be discretized using binning technique. 
+- 更加复杂的模型，比如神经网络，自己就能够习得特征交叉；在线性模型中，需要我们显式地使用这个模式
+- 机器学习设计模式#4：特征交叉（Feature Cross） https://zhuanlan.zhihu.com/p/687131263
